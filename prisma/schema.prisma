@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  hashedPassword String?
+
+  projects       Project[]
+  activities     Activity[]
+  learnings      Learning[]
+  interviews     Interview[]
+  achievements   Achievement[]
+
+  accounts       Account[]
+  sessions       Session[]
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+
+  activities  Activity[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  project     Project? @relation(fields: [projectId], references: [id])
+  projectId   String?
+  title       String
+  notes       String?
+  durationMin Int      @default(0)
+  tags        String[] @default([])
+  occurredAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Learning {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  topic      String
+  source     String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Interview {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  company    String
+  role       String
+  stage      String
+  outcome    String?
+  occurredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Achievement {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String
+  title      String
+  description String?
+  link       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// Authentication models used by Better Auth's Prisma adapter
+model Account {
+  id                 String  @id @default(cuid())
+  user               User    @relation(fields: [userId], references: [id])
+  userId             String
+  provider           String
+  providerAccountId  String
+  type               String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id                 String   @id @default(cuid())
+  sessionToken       String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  expires            DateTime
+  refreshToken       String?  @unique
+  refreshTokenExpiry DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  ip        String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+}
+
+model VerificationToken {
+  identifier String
+  token      String  @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// OAuth state tokens for validating provider redirects
+model OAuthState {
+  id        String   @id @default(cuid())
+  provider  String
+  state     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
