@@ -6,6 +6,7 @@ import Dialog from '@/components/Dialog';
 import { useDataStore } from '@/stores/useDataStore';
 import { useUIStore } from '@/stores/useUIStore';
 import { Pencil, Trash2, Plus } from "lucide-react";
+
 export default function InterviewsPage() {
   const interviews = useDataStore(s => s.interviews);
   const addInterview = useDataStore(s => s.addInterview);
@@ -68,7 +69,7 @@ export default function InterviewsPage() {
 
       <Card>
         {interviews.length === 0 ? (
-          <EmptyState title="No interviews tracked" description="Add interviews to keep track of upcoming stages and notes." action={<button onClick={() => setOpen(true)} className="px-3 py-2 bg-brand-500 text-white rounded">Add Interview</button>} />
+          <EmptyState title="No interviews tracked" description="Add interviews to keep track of upcoming stages and notes."           />
         ) : (
           <ul className="space-y-3">
             {interviews.map((i) => (
@@ -76,9 +77,15 @@ export default function InterviewsPage() {
                 <div>
                   <div className="font-semibold">{i.company} — {i.role}</div>
                   <div className="flex items-center gap-3 mt-1">
-                    <span className="text-sm text-slate-500">
-                      {i.date}
-                    </span>
+                   <span className="text-sm text-slate-500">
+  {new Date(i.date)
+    .toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+    .replace(/ /g, "-")}
+</span>
 
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium

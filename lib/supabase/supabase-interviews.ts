@@ -38,6 +38,7 @@ export async function createInterviewForUser(
     notes: payload.notes
   };
 
+
   const { data, error } = await supabase
     .from('interviews')
     .insert([row])
@@ -56,4 +57,60 @@ export async function createInterviewForUser(
     createdAt: data.created_at,
     updatedAt: data.updated_at
   };
+}
+
+export async function updateInterviewForUser(
+  id: string,
+  userId: string,
+  patch: Partial<Interview>
+) {
+  const row: any = {};
+
+  if (patch.company !== undefined) row.company = patch.company;
+  if (patch.role !== undefined) row.role = patch.role;
+  if (patch.date !== undefined) row.date = patch.date;
+  if (patch.status !== undefined) row.status = patch.status;
+  if (patch.notes !== undefined) row.notes = patch.notes;
+
+  row.updated_at = new Date().toISOString();
+
+  const { data, error } = await supabase
+    .from("interviews")
+    .update(row)
+    .match({
+      id,
+      user_id: userId,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    company: data.company,
+    role: data.role,
+    date: data.date,
+    status: data.status,
+    notes: data.notes,
+    createdAt: data.created_at,
+    updatedAt: data.updated_at,
+  };
+}
+
+export async function deleteInterviewForUser(
+  id: string,
+  userId: string
+) {
+  const { error } = await supabase
+    .from("interviews")
+    .delete()
+    .match({
+      id,
+      user_id: userId,
+    });
+
+  if (error) throw error;
+
+  return true;
 }

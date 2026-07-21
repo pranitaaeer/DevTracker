@@ -2,8 +2,11 @@
 import { create } from 'zustand';
 import {
   fetchInterviewsForUser,
-  createInterviewForUser
+  createInterviewForUser,
+  updateInterviewForUser,
+  deleteInterviewForUser
 } from '@/lib/supabase/supabase-interviews';
+
 // Data models
 export type Project = { id: string; name: string; description?: string; techStack?: string[]; status?: 'active' | 'on-hold' | 'completed' | 'archived'; githubUrl?: string; liveUrl?: string; color?: string; createdAt: string; updatedAt: string };
 export type KanbanCard = { id: string; title: string; description?: string; projectId?: string; priority?: 'low' | 'medium' | 'high'; dueDate?: string; createdAt: string; updatedAt: string };
@@ -26,7 +29,7 @@ type DevState = {
   // CRUD actions
   loadProjects: (userId: string) => Promise<void>;
   loadKanban: (userId: string) => Promise<void>;
-loadInterviews: (userId: string) => Promise<void>;
+  loadInterviews: (userId: string) => Promise<void>;
   addProject: (p: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Project>;
   updateProject: (id: string, patch: Partial<Project>) => Promise<Project | null>;
   deleteProject: (id: string, opts?: { undo?: boolean }) => void;
@@ -50,10 +53,16 @@ loadInterviews: (userId: string) => Promise<void>;
 
   // addInterview: (i: Omit<Interview, 'id' | 'createdAt' | 'updatedAt'>) => Interview;
   addInterview: (
-  i: Omit<Interview, "id" | "createdAt" | "updatedAt">
-) => Promise<Interview>;
-  updateInterview: (id: string, patch: Partial<Interview>) => void;
-  deleteInterview: (id: string) => void;
+    i: Omit<Interview, "id" | "createdAt" | "updatedAt">
+  ) => Promise<Interview>;
+  updateInterview: (
+    id: string,
+    patch: Partial<Interview>
+  ) => Promise<void>;
+
+  deleteInterview: (
+    id: string
+  ) => Promise<void>;
 
   addAchievement: (a: Omit<Achievement, 'id' | 'createdAt' | 'updatedAt'>) => Achievement;
   updateAchievement: (id: string, patch: Partial<Achievement>) => void;
@@ -427,21 +436,46 @@ export const useDataStore = create<DevState>((set, get) => {
     updateJournal: (id, patch) => { set((s: any) => ({ journal: s.journal.map((j: JournalEntry) => j.id === id ? { ...j, ...patch, updatedAt: nowISO() } : j) })); },
     deleteJournal: (id) => { set((s: any) => ({ journal: s.journal.filter((j: JournalEntry) => j.id !== id) })); },
 
-   addInterview: async (i) => {
+    addInterview: async (i) => {
 
-  const created = await createInterviewForUser(
-      mockUser.id,
-      i
-  );
+      const created = await createInterviewForUser(
+        mockUser.id,
+        i
+      );
 
-  set((s:any)=>({
-      interviews:[created,...s.interviews]
-  }));
+      set((s: any) => ({
+        interviews: [created, ...s.interviews]
+      }));
 
-  return created;
-},
-    updateInterview: (id, patch) => { set((s: any) => ({ interviews: s.interviews.map((it: Interview) => it.id === id ? { ...it, ...patch, updatedAt: nowISO() } : it) })); },
-    deleteInterview: (id) => { set((s: any) => ({ interviews: s.interviews.filter((it: Interview) => it.id !== id) })); },
+      return created;
+    },
+    updateInterview: async (id, patch) => {
+      const updated = await updateInterviewForUser(
+        id,
+        mockUser.id,
+        patch
+      );
+
+      set((s: any) => ({
+        interviews: s.interviews.map((it: Interview) =>
+          it.id === id ? updated : it
+        ),
+      }));
+    },
+    deleteInterview: async (id) => {
+      await deleteInterviewForUser(
+        id,
+        mockUser.id
+      );
+
+      set((s: any) => ({
+        interviews: s.interviews.filter(
+          (it: Interview) => it.id !== id
+        ),
+      }));
+    },
+    // updateInterview: (id, patch) => { set((s: any) => ({ interviews: s.interviews.map((it: Interview) => it.id === id ? { ...it, ...patch, updatedAt: nowISO() } : it) })); },
+    // deleteInterview: (id) => { set((s: any) => ({ interviews: s.interviews.filter((it: Interview) => it.id !== id) })); },
 
     addAchievement: (a) => { const ach: Achievement = { id: uid('ach-'), ...a, createdAt: nowISO(), updatedAt: nowISO() }; set((s: any) => ({ achievements: [ach, ...s.achievements] })); return ach; },
     updateAchievement: (id, patch) => { set((s: any) => ({ achievements: s.achievements.map((a: Achievement) => a.id === id ? { ...a, ...patch, updatedAt: nowISO() } : a) })); },
