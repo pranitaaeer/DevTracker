@@ -12,6 +12,12 @@ import {
   updateAchievementForUser,
   deleteAchievementForUser,
 } from "@/lib/supabase/supabase-achievements";
+import {
+  fetchJournalForUser,
+  createJournalForUser,
+  updateJournalForUser,
+  deleteJournalForUser,
+} from "@/lib/supabase/supabase-journals";
 
 // Data models
 export type Project = { id: string; name: string; description?: string; techStack?: string[]; status?: 'active' | 'on-hold' | 'completed' | 'archived'; githubUrl?: string; liveUrl?: string; color?: string; createdAt: string; updatedAt: string };
@@ -37,6 +43,7 @@ type DevState = {
   loadKanban: (userId: string) => Promise<void>;
   loadInterviews: (userId: string) => Promise<void>;
   loadAchievements: (userId: string) => Promise<void>;
+  loadJournal: (userId: string) => Promise<void>;
 
   addProject: (p: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Project>;
   updateProject: (id: string, patch: Partial<Project>) => Promise<Project | null>;
@@ -55,9 +62,16 @@ type DevState = {
   updateColumn: (id: string, patch: Partial<KanbanColumn>) => Promise<void>;
   deleteColumn: (id: string) => Promise<void>;
 
-  addJournal: (e: Omit<JournalEntry, 'id' | 'createdAt' | 'updatedAt'>) => JournalEntry;
-  updateJournal: (id: string, patch: Partial<JournalEntry>) => void;
-  deleteJournal: (id: string) => void;
+  addJournal: (
+    e: Omit<JournalEntry, "id" | "createdAt" | "updatedAt">
+  ) => Promise<JournalEntry>;
+  updateJournal: (
+    id: string,
+    patch: Partial<JournalEntry>
+  ) => Promise<void>;
+  deleteJournal: (
+    id: string
+  ) => Promise<void>;
 
   addInterview: (
     i: Omit<Interview, "id" | "createdAt" | "updatedAt">
@@ -71,18 +85,18 @@ type DevState = {
     id: string
   ) => Promise<void>;
 
- addAchievement: (
-  a: Omit<Achievement, 'id' | 'createdAt' | 'updatedAt'>
-) => Promise<Achievement>;
+  addAchievement: (
+    a: Omit<Achievement, 'id' | 'createdAt' | 'updatedAt'>
+  ) => Promise<Achievement>;
 
-updateAchievement: (
-  id: string,
-  patch: Partial<Achievement>
-) => Promise<void>;
+  updateAchievement: (
+    id: string,
+    patch: Partial<Achievement>
+  ) => Promise<void>;
 
-deleteAchievement: (
-  id: string
-) => Promise<void>;
+  deleteAchievement: (
+    id: string
+  ) => Promise<void>;
 
   addAITask: (t: Omit<AITask, 'id' | 'createdAt' | 'updatedAt'>) => AITask;
   updateAITask: (id: string, patch: Partial<AITask>) => void;
@@ -202,6 +216,13 @@ export const useDataStore = create<DevState>((set, get) => {
 
       set({
         interviews: rows
+      });
+    },
+    loadJournal: async (userId: string) => {
+      const rows = await fetchJournalForUser(userId);
+
+      set({
+        journal: rows,
       });
     },
     addProject: async (p) => {
@@ -442,13 +463,62 @@ export const useDataStore = create<DevState>((set, get) => {
       }
     },
 
-    addJournal: (e) => {
-      const entry: JournalEntry = { id: uid('j-'), date: e.date, content: e.content, createdAt: nowISO(), updatedAt: nowISO() };
-      set((s: any) => ({ journal: [entry, ...s.journal] }));
-      return entry;
+    addJournal: async (e) => {
+
+      const created = await createJournalForUser(
+        mockUser.id,
+        e
+      );
+
+      set((s: any) => ({
+        journal: [
+          created,
+          ...s.journal,
+        ],
+      }));
+
+      return created;
     },
-    updateJournal: (id, patch) => { set((s: any) => ({ journal: s.journal.map((j: JournalEntry) => j.id === id ? { ...j, ...patch, updatedAt: nowISO() } : j) })); },
-    deleteJournal: (id) => { set((s: any) => ({ journal: s.journal.filter((j: JournalEntry) => j.id !== id) })); },
+    updateJournal: async (
+      id,
+      patch
+    ) => {
+
+      const updated =
+        await updateJournalForUser(
+          id,
+          mockUser.id,
+          patch
+        );
+
+      set((s: any) => ({
+        journal:
+          s.journal.map((j: JournalEntry) =>
+            j.id === id
+              ? updated
+              : j
+          ),
+      }));
+    },
+    deleteJournal: async (
+      id
+    ) => {
+
+      await deleteJournalForUser(
+        id,
+        mockUser.id
+      );
+
+      set((s: any) => ({
+        journal:
+          s.journal.filter(
+            (j: JournalEntry) =>
+              j.id !== id
+          ),
+      }));
+    },
+    // updateJournal: (id, patch) => { set((s: any) => ({ journal: s.journal.map((j: JournalEntry) => j.id === id ? { ...j, ...patch, updatedAt: nowISO() } : j) })); },
+    // deleteJournal: (id) => { set((s: any) => ({ journal: s.journal.filter((j: JournalEntry) => j.id !== id) })); },
 
     addInterview: async (i) => {
 
@@ -488,64 +558,61 @@ export const useDataStore = create<DevState>((set, get) => {
         ),
       }));
     },
-addAchievement: async (a) => {
+    addAchievement: async (a) => {
 
-  const created =
-    await createAchievementForUser(
-      mockUser.id,
-      a
-    );
+      const created =
+        await createAchievementForUser(
+          mockUser.id,
+          a
+        );
 
-  set((s: any) => ({
-    achievements: [
-      created,
-      ...s.achievements,
-    ],
-  }));
+      set((s: any) => ({
+        achievements: [
+          created,
+          ...s.achievements,
+        ],
+      }));
 
-  return created;
-},
-    // addAchievement: (a) => { const ach: Achievement = { id: uid('ach-'), ...a, createdAt: nowISO(), updatedAt: nowISO() }; set((s: any) => ({ achievements: [ach, ...s.achievements] })); return ach; },
-    // updateAchievement: (id, patch) => { set((s: any) => ({ achievements: s.achievements.map((a: Achievement) => a.id === id ? { ...a, ...patch, updatedAt: nowISO() } : a) })); },
+      return created;
+    },
     updateAchievement: async (
-  id,
-  patch
-) => {
-
-  const updated =
-    await updateAchievementForUser(
       id,
-      mockUser.id,
       patch
-    );
+    ) => {
 
-  set((s: any) => ({
-    achievements:
-      s.achievements.map((a: Achievement) =>
-        a.id === id
-          ? updated
-          : a
-      ),
-  }));
-},
-deleteAchievement: async (
-  id
-) => {
+      const updated =
+        await updateAchievementForUser(
+          id,
+          mockUser.id,
+          patch
+        );
 
-  await deleteAchievementForUser(
-    id,
-    mockUser.id
-  );
+      set((s: any) => ({
+        achievements:
+          s.achievements.map((a: Achievement) =>
+            a.id === id
+              ? updated
+              : a
+          ),
+      }));
+    },
+    deleteAchievement: async (
+      id
+    ) => {
 
-  set((s: any) => ({
-    achievements:
-      s.achievements.filter(
-        (a: Achievement) =>
-          a.id !== id
-      ),
-  }));
-},
-    // deleteAchievement: (id) => { set((s: any) => ({ achievements: s.achievements.filter((a: Achievement) => a.id !== id) })); },
+      await deleteAchievementForUser(
+        id,
+        mockUser.id
+      );
+
+      set((s: any) => ({
+        achievements:
+          s.achievements.filter(
+            (a: Achievement) =>
+              a.id !== id
+          ),
+      }));
+    },
 
     addAITask: (t) => { const task: AITask = { id: uid('ai-'), ...t, createdAt: nowISO(), updatedAt: nowISO() }; set((s: any) => ({ aiTasks: [task, ...s.aiTasks] })); return task; },
     updateAITask: (id, patch) => { set((s: any) => ({ aiTasks: s.aiTasks.map((t: AITask) => t.id === id ? { ...t, ...patch, updatedAt: nowISO() } : t) })); },

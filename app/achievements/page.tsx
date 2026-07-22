@@ -46,7 +46,7 @@ export default function AchievementsPage() {
 
   async function onUpdate() {
     if (!editing) return;
-   await updateAchievement(editing.id, {
+    await updateAchievement(editing.id, {
       title,
       date,
       description: desc
@@ -57,15 +57,15 @@ export default function AchievementsPage() {
   }
 
   async function onDelete(id: string) {
-   await deleteAchievement(id);
+    await deleteAchievement(id);
     addToast({ title: 'Achievement removed' });
   }
-const loadAchievements =
-  useDataStore(s => s.loadAchievements);
+  const loadAchievements =
+    useDataStore(s => s.loadAchievements);
 
-useEffect(() => {
-  loadAchievements(mockUser.id);
-}, [loadAchievements]);
+  useEffect(() => {
+    loadAchievements(mockUser.id);
+  }, [loadAchievements]);
 
   return (
     <main className="min-h-screen text-white p-6">

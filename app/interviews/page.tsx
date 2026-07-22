@@ -60,7 +60,8 @@ export default function InterviewsPage() {
               setNotes("");
               setOpen(true);
             }}
-            className="px-4 py-2 rounded-lg bg-brand-500 text-white"
+            className="flex items-center gap-2 rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold transition-transform duration-200 hover:scale-105 active:scale-95"
+
           >
             + Add Interview
           </button>

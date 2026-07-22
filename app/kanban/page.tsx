@@ -30,10 +30,7 @@ export default function KanbanPage() {
     try {
       await loadKanban(MOCK_USER_ID);
 
-      console.log(
-        "KANBAN DATA:",
-        useDataStore.getState().kanban
-      );
+     
 
     } catch (error) {
       console.log("Kanban loading error:", error);
@@ -106,7 +103,18 @@ async function handleDelete(colId: string, cardId: string) {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Kanban</h1>
         <div className="flex gap-2">
-          <button onClick={() => { setOpenNew(true); setEditing(null); setTitle(''); setDesc(''); setPriority('medium'); setDueDate(''); setLinkedProject(undefined); setColId(kanban[0]?.id || ''); }} className="px-3 py-2 rounded bg-brand-500 text-white">New Card</button>
+          <button
+           onClick={() => { 
+            setOpenNew(true);
+             setEditing(null); 
+             setTitle(''); 
+             setDesc(''); 
+             setPriority('medium'); 
+             setDueDate(''); 
+             setLinkedProject(undefined);
+              setColId(kanban[0]?.id || ''); }}
+           className="flex items-center gap-2 rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold transition-transform duration-200 hover:scale-105 active:scale-95"
+>New Card</button>
         </div>
       </div>
 

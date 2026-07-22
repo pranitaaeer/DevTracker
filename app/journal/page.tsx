@@ -1,11 +1,13 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import JournalList from '@/components/JournalList';
 import Card from '@/components/Card';
 import EmptyState from '@/components/EmptyState';
 import Dialog from '@/components/Dialog';
 import { useDataStore } from '@/stores/useDataStore';
 import { useUIStore } from '@/stores/useUIStore';
+import { mockUser } from '@/lib/mockData';
+import { Trophy, Plus, Pencil, Trash2 } from 'lucide-react';
 
 export default function JournalPage() {
   const journal = useDataStore(s => s.journal);
@@ -19,32 +21,48 @@ export default function JournalPage() {
   const [date, setDate] = useState('');
   const [content, setContent] = useState('');
 
-  function onCreate() {
-    addJournal({ date, content });
+  async function onCreate() {
+   await addJournal({ date, content });
     addToast({ title: 'Journal entry saved' });
     setOpen(false); setDate(''); setContent('');
   }
 
-  function onUpdate() {
+  async function onUpdate() {
     if (!editing) return;
-    updateJournal(editing.id, { date, content });
+   await updateJournal(editing.id, { date, content });
     addToast({ title: 'Journal updated' });
     setEditing(null); setOpen(false);
   }
 
   function onEdit(e:any) { setEditing(e); setDate(e.date); setContent(e.content); setOpen(true); }
-  function onDelete(id:string) { deleteJournal(id); addToast({ title: 'Entry deleted' }); }
+ async function onDelete(id:string) {await deleteJournal(id); addToast({ title: 'Entry deleted' }); }
 
+ const loadJournal = useDataStore(s => s.loadJournal);
+
+useEffect(() => {
+  loadJournal(mockUser.id);
+}, []);
   return (
     <main className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Daily Journal</h1>
         <div className="text-sm text-slate-500">Capture daily notes and reflections</div>
+        
+        <button
+          onClick={() => {
+            setOpen(true);
+          }}
+          className="flex items-center gap-2 rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold transition-transform duration-200 hover:scale-105 active:scale-95"
+        >
+          <Plus size={17} />
+          New Entry
+        </button>
       </div>
 
       <Card>
         {journal.length === 0 ? (
-          <EmptyState title="No journal entries" description="Write your first entry to start tracking your progress." action={<button onClick={() => setOpen(true)} className="px-3 py-2 rounded bg-brand-500 text-white">New Entry</button>} />
+          <EmptyState title="No journal entries" description="Write your first entry to start tracking your progress." 
+          />
         ) : (
           <JournalList entries={journal} onEdit={onEdit} onDelete={onDelete} />
         )}
@@ -53,9 +71,9 @@ export default function JournalPage() {
       <Dialog open={open} onClose={() => setOpen(false)} title={editing ? 'Edit Entry' : 'New Entry'}>
         <div className="grid gap-3">
           <label className="text-sm">Date</label>
-          <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} className="border rounded px-3 py-2" />
+          <input type="date" value={date} onChange={(e)=>setDate(e.target.value)} className="border rounded px-3 py-2 text-black" />
           <label className="text-sm">Content</label>
-          <textarea value={content} onChange={(e)=>setContent(e.target.value)} className="border rounded px-3 py-2 h-40" />
+          <textarea value={content} onChange={(e)=>setContent(e.target.value)} className="border rounded px-3 py-2 h-40 text-black" />
 
           <div className="flex justify-end gap-2 mt-3">
             <button onClick={() => setOpen(false)} className="px-3 py-2 rounded">Cancel</button>
@@ -66,3 +84,4 @@ export default function JournalPage() {
     </main>
   );
 }
+
