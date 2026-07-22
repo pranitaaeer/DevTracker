@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Trophy, Plus, Pencil, Trash2 } from 'lucide-react';
 import AchievementsList from '@/components/AchievementsList';
 import Card from '@/components/Card';
@@ -8,7 +8,7 @@ import EmptyState from '@/components/EmptyState';
 import Dialog from '@/components/Dialog';
 import { useDataStore } from '@/stores/useDataStore';
 import { useUIStore } from '@/stores/useUIStore';
-
+import { mockUser } from '@/lib/mockData';
 export default function AchievementsPage() {
   const items = useDataStore(s => s.achievements);
   const addAchievement = useDataStore(s => s.addAchievement);
@@ -29,8 +29,8 @@ export default function AchievementsPage() {
     setEditing(null);
   }
 
-  function onCreate() {
-    addAchievement({ title, date, description: desc });
+  async function onCreate() {
+    await addAchievement({ title, date, description: desc });
     addToast({ title: 'Achievement added' });
     setOpen(false);
     resetForm();
@@ -44,9 +44,9 @@ export default function AchievementsPage() {
     setOpen(true);
   }
 
-  function onUpdate() {
+  async function onUpdate() {
     if (!editing) return;
-    updateAchievement(editing.id, {
+   await updateAchievement(editing.id, {
       title,
       date,
       description: desc
@@ -56,10 +56,16 @@ export default function AchievementsPage() {
     resetForm();
   }
 
-  function onDelete(id: string) {
-    deleteAchievement(id);
+  async function onDelete(id: string) {
+   await deleteAchievement(id);
     addToast({ title: 'Achievement removed' });
   }
+const loadAchievements =
+  useDataStore(s => s.loadAchievements);
+
+useEffect(() => {
+  loadAchievements(mockUser.id);
+}, [loadAchievements]);
 
   return (
     <main className="min-h-screen text-white p-6">
