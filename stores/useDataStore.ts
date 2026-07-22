@@ -18,7 +18,10 @@ import {
   updateJournalForUser,
   deleteJournalForUser,
 } from "@/lib/supabase/supabase-journals";
-
+import {
+  fetchActivitiesForUser,
+  createActivityForUser
+} from "@/lib/supabase/supabase-activities";
 // Data models
 export type Project = { id: string; name: string; description?: string; techStack?: string[]; status?: 'active' | 'on-hold' | 'completed' | 'archived'; githubUrl?: string; liveUrl?: string; color?: string; createdAt: string; updatedAt: string };
 export type KanbanCard = { id: string; title: string; description?: string; projectId?: string; priority?: 'low' | 'medium' | 'high'; dueDate?: string; createdAt: string; updatedAt: string };
@@ -27,7 +30,9 @@ export type JournalEntry = { id: string; date: string; content: string; createdA
 export type Interview = { id: string; company: string; role: string; date: string; status: string; notes?: string; createdAt: string; updatedAt: string };
 export type Achievement = { id: string; title: string; date: string; description?: string; createdAt: string; updatedAt: string };
 export type AITask = { id: string; title: string; details?: string; createdAt: string; updatedAt: string };
-export type Activity = { id: string; userId: string; projectId?: string; type: string; durationMin: number; description?: string; createdAt: string };
+export type Activity = {
+  id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;
+};
 
 type DevState = {
   projects: Project[];
@@ -44,6 +49,9 @@ type DevState = {
   loadInterviews: (userId: string) => Promise<void>;
   loadAchievements: (userId: string) => Promise<void>;
   loadJournal: (userId: string) => Promise<void>;
+  loadActivities: (userId: string) => Promise<void>;
+
+
 
   addProject: (p: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Project>;
   updateProject: (id: string, patch: Partial<Project>) => Promise<Project | null>;
@@ -102,8 +110,13 @@ type DevState = {
   updateAITask: (id: string, patch: Partial<AITask>) => void;
   deleteAITask: (id: string) => void;
 
-  addActivity: (a: Omit<Activity, 'id' | 'createdAt'>) => Activity;
-
+  // addActivity: (a: Omit<Activity, 'id' | 'createdAt'>) => Activity;
+  addActivity: (
+    a: Omit<
+      Activity,
+      "id" |  "createdAt" | "updatedAt"
+    >
+  ) => Promise<Activity>;
   // utilities
   resetToMockData: () => void;
 };
@@ -223,6 +236,13 @@ export const useDataStore = create<DevState>((set, get) => {
 
       set({
         journal: rows,
+      });
+    },
+    loadActivities: async (userId) => {
+      const rows = await fetchActivitiesForUser(userId);
+
+      set({
+        activities: rows,
       });
     },
     addProject: async (p) => {
@@ -618,11 +638,33 @@ export const useDataStore = create<DevState>((set, get) => {
     updateAITask: (id, patch) => { set((s: any) => ({ aiTasks: s.aiTasks.map((t: AITask) => t.id === id ? { ...t, ...patch, updatedAt: nowISO() } : t) })); },
     deleteAITask: (id) => { set((s: any) => ({ aiTasks: s.aiTasks.filter((t: AITask) => t.id !== id) })); },
 
-    addActivity: (a) => { const act: Activity = { id: uid('act-'), ...a, createdAt: nowISO() }; set((s: any) => ({ activities: [act, ...s.activities] })); return act; },
+    // addActivity: (a) => { const act: Activity = { id: uid('act-'), ...a, createdAt: nowISO() }; set((s: any) => ({ activities: [act, ...s.activities] })); return act; },
+    addActivity: async (a) => {
 
+      const created = await createActivityForUser(
+        mockUser.id,
+        {
+          title: a.title,
+          notes: a.notes,
+          durationMin: a.durationMin,
+          tags: a.tags,
+          occurredAt: a.occurredAt,
+          projectId: a.projectId,
+        }
+      );
+
+      set((s: any) => ({
+        activities: [
+          created,
+          ...s.activities,
+        ],
+      }));
+
+      return created;
+    },
     resetToMockData: () => {
       const s = seed();
-      set({ projects: s.projects, kanban: s.kanban, journal: s.journal, interviews: s.interviews, achievements: s.achievements, aiTasks: s.aiTasks, activities: s.activities });
+      set({ projects: s.projects, kanban: s.kanban, journal: s.journal, interviews: s.interviews, achievements: s.achievements, aiTasks: s.aiTasks, });
     }
   } as DevState;
 });
