@@ -31,7 +31,7 @@ export type Interview = { id: string; company: string; role: string; date: strin
 export type Achievement = { id: string; title: string; date: string; description?: string; createdAt: string; updatedAt: string };
 export type AITask = { id: string; title: string; details?: string; createdAt: string; updatedAt: string };
 export type Activity = {
-  id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;
+  id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;  
 };
 
 type DevState = {

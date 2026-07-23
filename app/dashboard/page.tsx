@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useDataStore } from '@/stores/useDataStore';
 import ProjectsList from '@/components/ProjectsList';
@@ -10,6 +10,8 @@ import Card from '@/components/Card';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Plus, Sparkles, Flame, Activity, Code2, FolderGit2 } from 'lucide-react';
+import { fetchActivitiesForUser } from "@/lib/supabase/supabase-activities";
+import { mockUser } from "@/lib/mockData";
 
 const AnalyticsChart = dynamic(() => import('@/components/AnalyticsChart'), {
   ssr: false,
@@ -51,6 +53,47 @@ export default function DashboardPage() {
     activities.reduce((s, a) => s + (a.durationMin || 0), 0) / 60 * 10
   ) / 10;
 
+  const [contributions,setContributions] = useState<any>({});
+  
+  
+  useEffect(()=>{
+  
+    async function load(){
+  
+      const activities =
+        await fetchActivitiesForUser(
+          mockUser.id
+        );
+  
+  
+      const map:any = {};
+  
+  
+      activities.forEach(activity=>{
+  
+        const date =
+          activity.occurredAt.split("T")[0];
+  
+  
+        if(map[date]){
+          map[date]++;
+        }
+        else{
+          map[date]=1;
+        }
+  
+      });
+  
+  
+      setContributions(map);
+  
+    }
+  
+  
+    load();
+  
+  },[]);
+  
 
   return (
     <main className="min-h-screen text-white">
@@ -194,7 +237,7 @@ export default function DashboardPage() {
 
           <Card title="GitHub Contribution">
 
-            <Heatmap contributions={{}} />
+            <Heatmap contributions={contributions} />
 
           </Card>
 
