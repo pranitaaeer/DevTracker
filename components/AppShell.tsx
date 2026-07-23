@@ -26,13 +26,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="mx-auto max-w-[1400px] px-4 lg:px-8 py-6">
         <div className="flex gap-6">
           {/* <div className="flex"> */}
-          <aside className="hidden lg:flex lg:w-64 flex-col gap-5">
-            {/* <div className="sticky top-6 rounded-xl border border-zinc-800 bg-[#111111] p-3 shadow-xl"> */}
+          <div className="lg:w-64">
             <Sidebar />
-            {/* </div> */}
-
-
-          </aside>
+          </div>
 
           <main className="flex-1 min-w-0">
             {/* <main className="flex-1 min-w-0 lg:ml-64"> */}
