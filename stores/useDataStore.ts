@@ -63,7 +63,6 @@ type DevState = {
   updateCard: (cardId: string, patch: Partial<KanbanCard>) => Promise<void>;
   deleteCard: (columnId: string, cardId: string) => Promise<void>;
 
-  // deleteCard: (columnId: string, cardId: string) => void;
   restoreCard: (cardId: string, columnId: string) => KanbanCard | null;
 
   addColumn: (title: string) => Promise<KanbanColumn>;
@@ -110,7 +109,6 @@ type DevState = {
   updateAITask: (id: string, patch: Partial<AITask>) => void;
   deleteAITask: (id: string) => void;
 
-  // addActivity: (a: Omit<Activity, 'id' | 'createdAt'>) => Activity;
   addActivity: (
     a: Omit<
       Activity,

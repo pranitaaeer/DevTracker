@@ -142,13 +142,12 @@ export default function DashboardPage() {
 
                   {
                     todayActivities.map(a => (
-
                       <div key={a.id} className="rounded-2xl border border-zinc-800 bg-[#111827] p-5 hover:border-zinc-700 transition-transform duration-200 hover:-translate-y-1">
 
                         <div className="flex justify-between gap-3">
 
                           <p className="text-sm font-medium text-zinc-100">
-                            {a.description}
+                            {a.title}
                           </p>
 
                           <span className="text-xs text-zinc-500">

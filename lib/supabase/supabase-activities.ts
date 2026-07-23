@@ -13,6 +13,7 @@ export async function fetchActivitiesForUser(userId: string) {
     if (error) throw error;
 
     return (data || []).map((r: any) => ({
+        id:r.id,
         title: r.title,
         notes: r.notes,
         durationMin: r.duration_min,
