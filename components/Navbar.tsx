@@ -11,17 +11,19 @@ import { useUIStore } from '@/stores/useUIStore';
 export default function Navbar() {
 
   const user = useStore((s) => s.user);
+
   const toggleSidebar = useUIStore(
     (s) => s.toggleSidebar
   );
+
   return (
     <motion.nav
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       className="
         sticky top-0 z-50
-        border-b border-zinc-800
-        bg-[#0d1117]/90
+        border-b border-zinc-200 dark:border-zinc-800
+        bg-white/90 dark:bg-[#0d1117]/90
         backdrop-blur-xl
       "
     >
@@ -33,34 +35,28 @@ export default function Navbar() {
       ">
 
 
-        {/* Left Section */}
-
         <div className="flex items-center gap-3">
 
 
-          {/* Mobile sidebar button */}
-
           <button
-            onClick={()=> {console.log("clicked"); toggleSidebar();}}
+            onClick={() => toggleSidebar()}
             className="
-                    md:hidden
-                    h-10 w-10
-                    rounded-xl
-                    border border-zinc-800
-                    bg-[#111827]
-                    flex items-center justify-center
-                    text-zinc-300
-                    hover:text-white
-                    hover:bg-zinc-800
-                    transition
-                    "
+              md:hidden
+              h-10 w-10
+              rounded-xl
+              border border-zinc-200 dark:border-black-200
+              bg-zinc-100 dark:bg-[#111827]
+              flex items-center justify-center
+              text-zinc-700 dark:text-zinc-300
+              hover:text-black dark:hover:text-white
+              hover:bg-zinc-200 dark:hover:bg-zinc-800
+              transition
+            "
           >
             <Menu size={20} />
           </button>
 
 
-
-          {/* Logo */}
 
           <Link
             href="/"
@@ -71,9 +67,9 @@ export default function Navbar() {
               className="
                 h-9 w-9
                 rounded-xl
-                bg-white
+                bg-black dark:bg-white
                 flex items-center justify-center
-                text-black
+                text-white dark:text-black
                 font-bold
                 shadow-lg
               "
@@ -86,7 +82,7 @@ export default function Navbar() {
 
               <h1
                 className="
-                  text-white
+                  text-black dark:text-white
                   font-semibold
                   tracking-tight
                   leading-none
@@ -115,13 +111,10 @@ export default function Navbar() {
 
 
 
-        {/* Right Section */}
-
         <div className="flex items-center gap-3">
 
 
           <ThemeToggle />
-
 
 
           {
@@ -131,10 +124,10 @@ export default function Navbar() {
                 className="
                   flex items-center gap-3
                   rounded-full
-                  border border-zinc-800
-                  bg-[#111827]
+                  border border-zinc-200 dark:border-zinc-800
+                  bg-zinc-100 dark:bg-[#111827]
                   px-2.5 py-1.5
-                  hover:bg-zinc-900
+                  hover:bg-zinc-200 dark:hover:bg-zinc-900
                   transition
                 "
               >
@@ -144,17 +137,17 @@ export default function Navbar() {
                   className="
                     h-8 w-8
                     rounded-full
-                    bg-zinc-800
+                    bg-zinc-200 dark:bg-zinc-800
                     flex items-center justify-center
                     text-sm
                     font-semibold
-                    text-white
+                    text-black dark:text-white
                   "
                 >
                   {
                     user.name
-                      ?.charAt(0)
-                      .toUpperCase()
+                    ?.charAt(0)
+                    .toUpperCase()
                     ||
                     'D'
                   }
@@ -168,7 +161,7 @@ export default function Navbar() {
                   <p
                     className="
                       text-sm
-                      text-white
+                      text-black dark:text-white
                       font-medium
                       max-w-[120px]
                       truncate
@@ -208,12 +201,12 @@ export default function Navbar() {
                 href="/login"
                 className="
                   rounded-xl
-                  bg-white
-                  text-black
+                  bg-black dark:bg-white
+                  text-white dark:text-black
                   px-4 py-2
                   text-sm
                   font-medium
-                  hover:bg-zinc-200
+                  hover:bg-zinc-800 dark:hover:bg-zinc-200
                   transition
                 "
               >
@@ -229,7 +222,6 @@ export default function Navbar() {
 
 
       </div>
-
 
     </motion.nav>
   );
