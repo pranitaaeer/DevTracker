@@ -19,7 +19,8 @@ export default function AITasksPage() {
   async function generate() {
     setLoading(true);
     try {
-      await generateTask();
+      const response=await generateTask();
+      console.log("response",response)
       addToast({ title: "AI task generated successfully" });
     } catch (error) {
       addToast({ title: "Failed to generate task" });

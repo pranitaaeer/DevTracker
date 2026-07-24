@@ -17,7 +17,13 @@ export default function CommandPalette() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  const results = [...projects.map(p => ({ id: p.id, label: p.name, type: 'project' })), ...aiTasks.map(t => ({ id: t.id, label: t.title, type: 'ai' }))].filter(r => r.label.toLowerCase().includes(q.toLowerCase()));
+  const results = [...projects.map(p => ({ id: p.id, label: p.name, type: 'project' })), 
+    ...aiTasks.map(t => ({ id: t.id, label: t.title ?? "", type: 'ai' }))]
+    .filter(r =>
+    (r.label ?? "")
+      .toLowerCase()
+      .includes(q.toLowerCase())
+)
 
   return (
     <Dialog open={open} onClose={() => setOpen(false)} title="Quick Open">
