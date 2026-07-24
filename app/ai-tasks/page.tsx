@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "@/components/Card";
 import EmptyState from "@/components/EmptyState";
 import { useDataStore } from "@/stores/useDataStore";
 import { useUIStore } from "@/stores/useUIStore";
-
+import { mockUser } from "@/lib/mockData";
 export default function AITasksPage() {
   const [loading, setLoading] = useState(false);
 
@@ -15,12 +15,18 @@ export default function AITasksPage() {
   const updateStatus = useDataStore((s) => s.updateAITaskStatus);
   const addToast = useUIStore((s) => s.addToast);
 
+  const loadAITasks = useDataStore((s) => s.loadAITasks);
+
+  useEffect(() => {
+    loadAITasks(mockUser.id);
+  }, []);
+
   // Generate Task Handler
   async function generate() {
     setLoading(true);
     try {
-      const response=await generateTask();
-      console.log("response",response)
+      const response = await generateTask();
+      console.log("response", response)
       addToast({ title: "AI task generated successfully" });
     } catch (error) {
       addToast({ title: "Failed to generate task" });
@@ -56,7 +62,7 @@ export default function AITasksPage() {
         </button>
       </div>
 
-      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+      <Card className="bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
         {tasks.length === 0 ? (
           <EmptyState
             title="No AI suggestions"

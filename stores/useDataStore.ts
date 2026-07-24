@@ -111,7 +111,7 @@ type DevState = {
   ) => Promise<void>;
 
 
-  generateAITask: ()=>Promise<AITask>;
+  generateAITask: () => Promise<AITask>;
 
   updateAITaskStatus: (
     id: string,
@@ -150,8 +150,8 @@ function seed() {
 
   const achievements = mockAchievements.map(a => ({ ...a, id: a.id || uid('ach-'), createdAt: nowISO(), updatedAt: nowISO() }));
 
-  const aiTasks = mockAITasks.map(t => ({ ...t, id: t.id || uid('ai-'), createdAt: nowISO(), updatedAt: nowISO() }));
-
+  // const aiTasks = mockAITasks.map(t => ({ ...t, id: t.id || uid('ai-'), createdAt: nowISO(), updatedAt: nowISO() }));
+  const aiTasks: AITask[] = [];
   const activities = mockActivities.map(a => ({ ...a, id: a.id || uid('act-'), createdAt: a.createdAt ?? nowISO() }));
 
   return { projects, kanban, journal, interviews, achievements, aiTasks, activities };
@@ -179,7 +179,8 @@ export const useDataStore = create<DevState>((set, get) => {
     journal: initial.journal,
     interviews: initial.interviews,
     achievements: initial.achievements,
-    aiTasks: initial.aiTasks,
+    // aiTasks: initial.aiTasks,
+    aiTasks: [],
     activities: initial.activities,
   };
 
@@ -192,7 +193,7 @@ export const useDataStore = create<DevState>((set, get) => {
         journal: state.journal,
         interviews: state.interviews,
         achievements: state.achievements,
-        aiTasks: state.aiTasks,
+        // aiTasks: state.aiTasks,
         activities: state.activities
       };
       persist(snapshot);
@@ -735,7 +736,7 @@ export const useDataStore = create<DevState>((set, get) => {
     },
     resetToMockData: () => {
       const s = seed();
-      set({ projects: s.projects, kanban: s.kanban, journal: s.journal, interviews: s.interviews, achievements: s.achievements, aiTasks: s.aiTasks, });
+      set({ projects: s.projects, kanban: s.kanban, journal: s.journal, interviews: s.interviews, achievements: s.achievements, aiTasks: [] });
     }
   } as DevState;
 });
