@@ -22,6 +22,11 @@ import {
   fetchActivitiesForUser,
   createActivityForUser
 } from "@/lib/supabase/supabase-activities";
+import {
+  fetchAITasksForUser,
+  createAITaskForUser,
+  updateAITaskStatus
+} from "@/lib/supabase/supabase-aitasks";
 // Data models
 export type Project = { id: string; name: string; description?: string; techStack?: string[]; status?: 'active' | 'on-hold' | 'completed' | 'archived'; githubUrl?: string; liveUrl?: string; color?: string; createdAt: string; updatedAt: string };
 export type KanbanCard = { id: string; title: string; description?: string; projectId?: string; priority?: 'low' | 'medium' | 'high'; dueDate?: string; createdAt: string; updatedAt: string };
@@ -29,9 +34,9 @@ export type KanbanColumn = { id: string; title: string; cards: KanbanCard[] };
 export type JournalEntry = { id: string; date: string; content: string; createdAt: string; updatedAt: string };
 export type Interview = { id: string; company: string; role: string; date: string; status: string; notes?: string; createdAt: string; updatedAt: string };
 export type Achievement = { id: string; title: string; date: string; description?: string; createdAt: string; updatedAt: string };
-export type AITask = { id: string; title: string; details?: string; createdAt: string; updatedAt: string };
+export type AITask = { id: string; title: string; details?: string; status?: "pending" | "completed" | "dismissed"; createdAt: string; updatedAt: string };
 export type Activity = {
-  id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;  
+  id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;
 };
 
 type DevState = {
@@ -50,7 +55,7 @@ type DevState = {
   loadAchievements: (userId: string) => Promise<void>;
   loadJournal: (userId: string) => Promise<void>;
   loadActivities: (userId: string) => Promise<void>;
-
+  loadAITasks: (userId: string) => Promise<void>;
 
 
   addProject: (p: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Project>;
@@ -105,16 +110,21 @@ type DevState = {
     id: string
   ) => Promise<void>;
 
-  addAITask: (t: Omit<AITask, 'id' | 'createdAt' | 'updatedAt'>) => AITask;
-  updateAITask: (id: string, patch: Partial<AITask>) => void;
-  deleteAITask: (id: string) => void;
+
+  generateAITask: ()=>Promise<AITask>;
+
+  updateAITaskStatus: (
+    id: string,
+    status: "pending" | "completed" | "dismissed"
+  ) => Promise<void>;
 
   addActivity: (
     a: Omit<
       Activity,
-      "id" |  "createdAt" | "updatedAt"
+      "id" | "createdAt" | "updatedAt"
     >
   ) => Promise<Activity>;
+
   // utilities
   resetToMockData: () => void;
 };
@@ -242,6 +252,76 @@ export const useDataStore = create<DevState>((set, get) => {
       set({
         activities: rows,
       });
+    },
+    loadAITasks: async (userId) => {
+
+      const rows = await fetchAITasksForUser(userId);
+
+      set({
+        aiTasks: rows
+      });
+
+    },
+
+    generateAITask: async () => {
+
+      const activities = get().activities.slice(0, 10);
+
+      const response = await fetch(
+        "/api/ai/generate-task",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            activities,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("AI failed");
+      }
+
+      const suggestion = await response.json();
+
+      const created =
+        await createAITaskForUser(
+          mockUser.id,
+          {
+            title: suggestion.title,
+            details: suggestion.details,
+          }
+        );
+
+      set((state: any) => ({
+        aiTasks: [
+          created,
+          ...state.aiTasks
+        ]
+      }));
+
+      return created;
+
+    },
+
+    updateAITaskStatus: async (id, status) => {
+
+      const updated =
+        await updateAITaskStatus(
+          id,
+          status
+        );
+
+      set((s: any) => ({
+        aiTasks: s.aiTasks.map((t: AITask) =>
+          t.id === id
+            ? updated
+            : t
+        )
+      }));
+
     },
     addProject: async (p) => {
       // create on Supabase first
@@ -535,8 +615,6 @@ export const useDataStore = create<DevState>((set, get) => {
           ),
       }));
     },
-    // updateJournal: (id, patch) => { set((s: any) => ({ journal: s.journal.map((j: JournalEntry) => j.id === id ? { ...j, ...patch, updatedAt: nowISO() } : j) })); },
-    // deleteJournal: (id) => { set((s: any) => ({ journal: s.journal.filter((j: JournalEntry) => j.id !== id) })); },
 
     addInterview: async (i) => {
 
@@ -632,11 +710,6 @@ export const useDataStore = create<DevState>((set, get) => {
       }));
     },
 
-    addAITask: (t) => { const task: AITask = { id: uid('ai-'), ...t, createdAt: nowISO(), updatedAt: nowISO() }; set((s: any) => ({ aiTasks: [task, ...s.aiTasks] })); return task; },
-    updateAITask: (id, patch) => { set((s: any) => ({ aiTasks: s.aiTasks.map((t: AITask) => t.id === id ? { ...t, ...patch, updatedAt: nowISO() } : t) })); },
-    deleteAITask: (id) => { set((s: any) => ({ aiTasks: s.aiTasks.filter((t: AITask) => t.id !== id) })); },
-
-    // addActivity: (a) => { const act: Activity = { id: uid('act-'), ...a, createdAt: nowISO() }; set((s: any) => ({ activities: [act, ...s.activities] })); return act; },
     addActivity: async (a) => {
 
       const created = await createActivityForUser(
