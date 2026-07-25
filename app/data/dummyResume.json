@@ -1,0 +1,49 @@
+{
+  "fullName": "John Doe",
+  "role": "Full Stack Engineer",
+  "phone": "+1 234 567 890",
+  "email": "john.doe@example.com",
+  "linkedin": "linkedin.com/in/johndoe",
+  "github": "github.com/johndoe",
+  "summary": "Experienced Full Stack Engineer specialized in building modern web applications, REST APIs, and scalable user interfaces using React, Node.js, and cloud services.",
+  "skillsLanguages": "JavaScript, TypeScript, Python, SQL",
+  "skillsFrontend": "React.js, Next.js, Tailwind CSS, HTML5, CSS3",
+  "skillsBackend": "Node.js, Express.js, REST APIs, GraphQL",
+  "skillsDatabase": "MongoDB, PostgreSQL, Redis",
+  "skillsTools": "Git, GitHub, Docker, Postman",
+  "skillsSoft": "Problem Solving, Team Leadership, Communication",
+  "experiences": [
+    {
+      "id": "1",
+      "role": "Full Stack Developer",
+      "company": "Tech Solutions Inc.",
+      "year": "2024 - Present",
+      "details": "Developed and maintained full-stack web applications serving 50k+ active users.\nCollaborated with cross-functional teams to design RESTful APIs and UI components."
+    },
+    {
+      "id": "2",
+      "role": "Frontend Intern",
+      "company": "WebCraft Labs",
+      "year": "2023 - 2024",
+      "details": "Built responsive frontend modules using React.js and Tailwind CSS.\nImproved website performance and reduced load time by 20%."
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "title": "E-Commerce Web Platform",
+      "techStack": "React.js, Node.js, MongoDB, Express",
+      "year": "2025",
+      "details": "Built a scalable e-commerce application with dynamic routing and state management.\nIntegrated payment gateway solutions and secure user authentication."
+    },
+    {
+      "id": "2",
+      "title": "Task Management App",
+      "techStack": "Next.js, TypeScript, Tailwind CSS",
+      "year": "2026",
+      "details": "Designed a real-time collaborative task tracker with drag-and-drop features.\nOptimized client-side rendering for improved page response times."
+    }
+  ],
+  "certifications": "Full Stack Web Development – Tech Institute (2024)\nCloud Practitioner Essentials – AWS (2025)",
+  "education": "B.S. in Computer Science — Global Tech University (2021 - 2025)"
+}
