@@ -12,6 +12,8 @@
   },
   "iconLibrary": "lucide",
   "rtl": false,
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "aliases": {
     "components": "@/lib/components",
     "utils": "@/lib/lib/utils",
@@ -19,7 +21,7 @@
     "lib": "@/lib/lib",
     "hooks": "@/lib/hooks"
   },
-  "menuColor": "default",
-  "menuAccent": "subtle",
-  "registries": {}
+  "registries": {
+    "@clerk": "https://clerk.com/r/{name}.json"
+  }
 }

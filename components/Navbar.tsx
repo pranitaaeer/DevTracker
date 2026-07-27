@@ -7,9 +7,11 @@ import { useStore } from '@/stores/useUserStore';
 import ThemeToggle from './ThemeToggle';
 import { motion } from 'framer-motion';
 import { useUIStore } from '@/stores/useUIStore';
-
+import { SignInButton } from '@clerk/nextjs';
+import { dark } from '@clerk/themes';
+import { useTheme } from 'next-themes';
 export default function Navbar() {
-
+const { resolvedTheme } = useTheme();
   const user = useStore((s) => s.user);
 
   const toggleSidebar = useUIStore(
@@ -146,8 +148,8 @@ export default function Navbar() {
                 >
                   {
                     user.name
-                    ?.charAt(0)
-                    .toUpperCase()
+                      ?.charAt(0)
+                      .toUpperCase()
                     ||
                     'D'
                   }
@@ -197,21 +199,16 @@ export default function Navbar() {
             ) : (
 
 
-              <Link
-                href="/login"
-                className="
-                  rounded-xl
-                  bg-black dark:bg-white
-                  text-white dark:text-black
-                  px-4 py-2
-                  text-sm
-                  font-medium
-                  hover:bg-zinc-800 dark:hover:bg-zinc-200
-                  transition
-                "
-              >
-                Sign in
-              </Link>
+              <SignInButton mode="modal" appearance={{
+                theme: resolvedTheme === 'dark' ? dark : undefined,
+                elements: {
+                  card: 'border border-zinc-200 dark:border-zinc-800 shadow-2xl',
+                },
+              }}>
+                <button className="rounded-xl bg-black dark:bg-white text-white dark:text-black px-4 py-2 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition">
+                  Sign in
+                </button>
+              </SignInButton>
 
 
             )
