@@ -12,7 +12,7 @@ import LoadingSkeleton from '@/components/LoadingSkeleton';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Plus, Sparkles, Flame, Activity, Code2, FolderGit2 } from 'lucide-react';
 import { fetchActivitiesForUser } from "@/lib/supabase/supabase-activities";
-
+import Link from 'next/link';
 
 const AnalyticsChart = dynamic(
   () => import('@/components/AnalyticsChart'),
@@ -30,7 +30,7 @@ const Heatmap = dynamic(
   }
 );
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
   const { user, isLoaded, isSignedIn } = useUser();
   const activities = useDataStore(s => s.activities);
   const projects = useDataStore(s => s.projects);
@@ -39,6 +39,8 @@ export default async function DashboardPage() {
   const achievements = useDataStore(s => s.achievements);
   const aiTasks = useDataStore(s => s.aiTasks);
 
+  // AI Drawer Control State
+  const [isAiOpen, setIsAiOpen] = useState(false);
   const [contributions, setContributions] = useState<any>({});
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export default async function DashboardPage() {
       load();
     }
   }, [user, isLoaded, isSignedIn]);
- 
+
   const weekly = useMemo(() => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const map: Record<string, number> = {};
@@ -92,7 +94,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-100 dark:bg-[#0d1117] text-black dark:text-white p-6">
+    <main className="min-h-screen bg-zinc-100 dark:bg-[#0d1117] text-black dark:text-white p-6 relative">
       <section className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d1117] p-8 mb-8 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-purple-500/10" />
 
@@ -112,13 +114,19 @@ export default async function DashboardPage() {
             </p>
 
             <div className="flex gap-3 mt-7">
-              <button className="flex items-center gap-2 rounded-xl bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 text-sm font-semibold transition hover:scale-105">
-                <Plus size={17} />
-                Add Activity
-              </button>
+              <Link href={'/analytics'}>
+                <button className="flex items-center gap-2 rounded-xl bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 text-sm font-semibold transition hover:scale-105">
+                  <Plus size={17} />
+                  Add Activity
+                </button>
+              </Link>
 
-              <button className="flex items-center gap-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#0d1117] text-black dark:text-white px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
-                <Sparkles size={17} />
+              {/* AI Assistant Trigger Button */}
+              <button 
+                onClick={() => setIsAiOpen(true)}
+                className="flex items-center gap-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#0d1117] text-black dark:text-white px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+              >
+                <Sparkles size={17} className="text-purple-500" />
                 AI Assistant
               </button>
             </div>
@@ -216,6 +224,52 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </section>
+
+      {/* AI Assistant Modal/Drawer — Here */}
+      {isAiOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
+          <div className="w-full max-w-md h-full bg-white dark:bg-[#111827] border-l border-zinc-200 dark:border-zinc-800 p-6 flex flex-col justify-between shadow-2xl transition-all">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="flex items-center gap-2 font-semibold text-lg text-zinc-900 dark:text-white">
+                  <Sparkles className="text-purple-500" size={20} />
+                  DevTrack AI Assistant
+                </div>
+                <button 
+                  onClick={() => setIsAiOpen(false)}
+                  className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white text-sm cursor-pointer p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-6 space-y-4 text-sm text-zinc-600 dark:text-zinc-400">
+                <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-900 dark:text-purple-300">
+                  👋 Hi! I analyzed your recent activities. You spent <strong>{totalHours} hrs</strong> coding recently. Ready to set today's goals?
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase text-zinc-400">Quick Prompts</p>
+                  <button className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+                    ✨ Summarize my weekly progress
+                  </button>
+                  <button className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+                    🔥 Suggest tasks to keep my streak going
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <input 
+                type="text" 
+                placeholder="Ask AI anything about your code journey..."
+                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#0d1117] px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
