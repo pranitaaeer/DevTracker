@@ -14,12 +14,12 @@ export default function Card({
   className = '',
 }: CardProps) {
   return (
-    <div className={`rounded-2xl border border-zinc-800 bg-[#0d1117] shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:border-zinc-700 transition-all duration-300 ${className}`}>
+    <div className={`rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d1117] shadow-lg dark:shadow-[0_10px_35px_rgba(0,0,0,0.25)] hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 ${className}`}>
 
       {title && (
         <div className="flex items-center justify-between px-5 pt-5">
 
-          <h3 className="text-sm font-semibold text-zinc-100 tracking-tight">
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
             {title}
           </h3>
 

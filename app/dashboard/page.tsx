@@ -143,7 +143,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-zinc-100 dark:bg-[#0d1117] text-black dark:text-white p-6 relative">
+    <main className="min-h-screen bg-white dark:bg-[#0d1117] text-black dark:text-white p-6 relative">
       <section className="relative overflow-hidden rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0d1117] p-8 mb-8 shadow-2xl">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-purple-500/10" />
 

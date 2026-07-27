@@ -77,9 +77,9 @@ export default function ProjectsPage() {
            onClick={() => { 
             setOpenNew(true); 
             resetForm(); }} 
-          className="flex items-center gap-2 rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold transition-transform duration-200 hover:scale-105 active:scale-95"
->
-              New Project</button>
+                className="flex items-center gap-2 rounded-xl bg-black dark:bg-white text-white dark:text-black px-5 py-2.5 text-sm font-semibold transition hover:scale-105">
+
+             + New Project</button>
         </div>
       </div>
 
@@ -94,15 +94,15 @@ export default function ProjectsPage() {
       <Dialog open={openNew} onClose={() => setOpenNew(false)} title={editing ? 'Edit Project' : 'New Project'}>
         <div className="grid gap-3">
           <label className="text-sm">Name</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className="border rounded px-3 py-2" />
+          <input value={name} onChange={(e) => setName(e.target.value)} className="border rounded px-3 py-2 text-black" />
           <label className="text-sm">Description</label>
-          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="border rounded px-3 py-2" />
+          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} className="border rounded px-3 py-2 text-black" />
 
           <label className="text-sm">Tech stack (comma separated)</label>
-          <input value={techs} onChange={(e) => setTechs(e.target.value)} className="border rounded px-3 py-2" />
+          <input value={techs} onChange={(e) => setTechs(e.target.value)} className="border rounded px-3 py-2 text-black" />
 
           <label className="text-sm">Status</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="border rounded px-3 py-2">
+          <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="border rounded px-3 py-2 text-black">
             <option value="active">Active</option>
             <option value="on-hold">On Hold</option>
             <option value="completed">Completed</option>
@@ -110,10 +110,10 @@ export default function ProjectsPage() {
           </select>
 
           <label className="text-sm">GitHub URL</label>
-          <input value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} className="border rounded px-3 py-2" />
+          <input value={githubUrl} onChange={(e) => setGithubUrl(e.target.value)} className="border rounded px-3 py-2 text-black" />
 
           <label className="text-sm">Live URL</label>
-          <input value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} className="border rounded px-3 py-2" />
+          <input value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} className="border rounded px-3 py-2 text-black" />
 
           <div className="flex justify-end gap-2 mt-3">
             <button onClick={() => { setOpenNew(false); resetForm(); }} className="px-3 py-2 rounded">Cancel</button>
