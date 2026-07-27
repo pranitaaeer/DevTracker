@@ -66,15 +66,15 @@ export default function Navbar() {
             <>
               {isSignedIn ? (
                 <UserButton
-                  afterSignOutUrl="/"
                   appearance={{
                     elements: {
                       avatarBox: "h-9 w-9 rounded-full ring-2 ring-zinc-200 dark:ring-zinc-800 transition-all hover:scale-105",
+                   modalBackdrop: 'backdrop-blur-md bg-black/60 fixed inset-0 z-50',
                     }
                   }}
                 />
               ) : (
-                <SignInButton mode="modal">
+                <SignInButton  mode="modal" >
                   <button className="rounded-xl bg-black dark:bg-white text-white dark:text-black px-4 py-2 text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition">
                     Sign in
                   </button>

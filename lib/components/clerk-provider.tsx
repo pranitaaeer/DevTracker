@@ -9,6 +9,7 @@ export function ClerkProvider({ children, appearance, ...props }: ClerkProviderP
       appearance={{
         theme: dark,
         ...appearance,
+        
       }}
       {...props}
     >

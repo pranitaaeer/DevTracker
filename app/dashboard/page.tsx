@@ -30,9 +30,8 @@ const Heatmap = dynamic(
   }
 );
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
   const { user, isLoaded, isSignedIn } = useUser();
-
   const activities = useDataStore(s => s.activities);
   const projects = useDataStore(s => s.projects);
   const journal = useDataStore(s => s.journal);
@@ -61,7 +60,7 @@ export default function DashboardPage() {
       load();
     }
   }, [user, isLoaded, isSignedIn]);
-
+ 
   const weekly = useMemo(() => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const map: Record<string, number> = {};
