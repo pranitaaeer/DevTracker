@@ -39,6 +39,7 @@ export type Activity = {
   id: string; userId: string; projectId?: string; title: string; notes?: string; durationMin: number; tags: string[]; occurredAt: string; createdAt: string; updatedAt: string;
 };
 
+
 type DevState = {
   projects: Project[];
   kanban: KanbanColumn[];
@@ -47,7 +48,7 @@ type DevState = {
   achievements: Achievement[];
   aiTasks: AITask[];
   activities: Activity[];
-
+  
   // CRUD actions
   loadProjects: (userId: string) => Promise<void>;
   loadKanban: (userId: string) => Promise<void>;
@@ -179,7 +180,6 @@ export const useDataStore = create<DevState>((set, get) => {
     journal: initial.journal,
     interviews: initial.interviews,
     achievements: initial.achievements,
-    // aiTasks: initial.aiTasks,
     aiTasks: [],
     activities: initial.activities,
   };
@@ -263,7 +263,7 @@ export const useDataStore = create<DevState>((set, get) => {
       });
 
     },
-
+   
     generateAITask: async () => {
 
       const activities = get().activities.slice(0, 10);

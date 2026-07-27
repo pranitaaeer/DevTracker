@@ -10,9 +10,15 @@ import AchievementsList from '@/components/AchievementsList';
 import Card from '@/components/Card';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import AnimatedNumber from '@/components/AnimatedNumber';
-import { Plus, Sparkles, Flame, Activity, Code2, FolderGit2 } from 'lucide-react';
+import { Plus, Sparkles, Flame, Activity, Code2, FolderGit2, Send } from 'lucide-react';
 import { fetchActivitiesForUser } from "@/lib/supabase/supabase-activities";
 import Link from 'next/link';
+
+export type Message = {
+  id: string;
+  role: 'user' | 'assistant';
+  message: string;
+};
 
 const AnalyticsChart = dynamic(
   () => import('@/components/AnalyticsChart'),
@@ -42,6 +48,49 @@ export default function DashboardPage() {
   // AI Drawer Control State
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [contributions, setContributions] = useState<any>({});
+  const [inputMessage, setInputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  
+  // FIX 1: Initialized messages state properly
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  // Simple Normal Handle Send Function
+  const handleSendMessage = (textToSend?: string) => {
+    const query = (textToSend || inputMessage).trim();
+    if (!query) return;
+
+    // User message local state mein add karein
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      message: query,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setInputMessage('');
+    setIsTyping(true);
+
+    // Dummy AI Response (1 second ke delay ke baad)
+    setTimeout(() => {
+      const dummyReplies = [
+        "That's awesome! Keep pushing your code updates.",
+        "Got it! I've logged this in your local session.",
+        "Great progress! Let me know if you need help structuring your tasks.",
+        "Keep going! Consistency is key to mastering development."
+      ];
+
+      const randomReply = dummyReplies[Math.floor(Math.random() * dummyReplies.length)];
+
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        message: randomReply,
+      };
+
+      setMessages((prev) => [...prev, aiMsg]);
+      setIsTyping(false);
+    }, 1000);
+  };
 
   useEffect(() => {
     async function load() {
@@ -122,7 +171,7 @@ export default function DashboardPage() {
               </Link>
 
               {/* AI Assistant Trigger Button */}
-              <button 
+              <button
                 onClick={() => setIsAiOpen(true)}
                 className="flex items-center gap-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#0d1117] text-black dark:text-white px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
               >
@@ -225,17 +274,17 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* AI Assistant Modal/Drawer — Here */}
+      {/* AI Assistant Modal/Drawer */}
       {isAiOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-md h-full bg-white dark:bg-[#111827] border-l border-zinc-200 dark:border-zinc-800 p-6 flex flex-col justify-between shadow-2xl transition-all">
-            <div>
-              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex flex-col h-full overflow-hidden">
+              <div className="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
                 <div className="flex items-center gap-2 font-semibold text-lg text-zinc-900 dark:text-white">
                   <Sparkles className="text-purple-500" size={20} />
                   DevTrack AI Assistant
                 </div>
-                <button 
+                <button
                   onClick={() => setIsAiOpen(false)}
                   className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white text-sm cursor-pointer p-1"
                 >
@@ -243,29 +292,67 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              <div className="mt-6 space-y-4 text-sm text-zinc-600 dark:text-zinc-400">
+              {/* Chat Container */}
+              <div className="flex-1 overflow-y-auto my-4 space-y-4 text-sm text-zinc-600 dark:text-zinc-400 pr-1">
                 <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-900 dark:text-purple-300">
                   👋 Hi! I analyzed your recent activities. You spent <strong>{totalHours} hrs</strong> coding recently. Ready to set today's goals?
                 </div>
 
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase text-zinc-400">Quick Prompts</p>
-                  <button className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+                  <button 
+                    onClick={() => handleSendMessage("Summarize my weekly progress")}
+                    className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                  >
                     ✨ Summarize my weekly progress
                   </button>
-                  <button className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
+                  <button 
+                    onClick={() => handleSendMessage("Suggest tasks to keep my streak going")}
+                    className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                  >
                     🔥 Suggest tasks to keep my streak going
                   </button>
                 </div>
-              </div>
-            </div>
 
-            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-              <input 
-                type="text" 
-                placeholder="Ask AI anything about your code journey..."
-                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-[#0d1117] px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500"
-              />
+                {/* FIX 2: Render Sent Messages */}
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`p-3 rounded-xl text-sm ${
+                      msg.role === 'user'
+                        ? 'ml-auto bg-purple-600 text-white max-w-[85%]'
+                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 max-w-[85%]'
+                    }`}
+                  >
+                    {msg.message}
+                  </div>
+                ))}
+
+                {isTyping && (
+                  <div className="text-xs text-purple-400 italic animate-pulse">
+                    AI is thinking...
+                  </div>
+                )}
+              </div>
+
+              {/* Input Container */}
+              <div className="relative flex items-center shrink-0">
+                <input
+                  type="text"
+                  placeholder="Ask AI anything about your code journey..."
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+                  className="w-full px-4 py-3 pr-12 text-sm rounded-xl bg-slate-900 border border-purple-500/30 focus:outline-none focus:border-purple-500 text-white"
+                />
+                <button
+                  onClick={() => handleSendMessage()}
+                  disabled={!inputMessage.trim()}
+                  className="absolute right-2 p-2 rounded-lg text-purple-400 hover:text-white hover:bg-purple-600/20 disabled:opacity-40 transition-colors"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
