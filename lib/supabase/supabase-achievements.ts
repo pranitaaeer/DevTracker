@@ -10,7 +10,7 @@ export async function fetchAchievementsForUser(userId: string) {
     .eq("user_id", userId)
     .order("date", { ascending: false });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to fetch achievements');
 
   return (data || []).map((r: any) => ({
     id: String(r.id),
@@ -26,13 +26,13 @@ export async function createAchievementForUser(
   userId: string,
   payload: Partial<Achievement>
 ) {
- const row = {
-  id: crypto.randomUUID(),
-  user_id: userId,
-  title: payload.title,
-  description: payload.description || null,
-  date: payload.date,
-};
+  const row = {
+    id: crypto.randomUUID(),
+    user_id: userId,
+    title: payload.title,
+    description: payload.description || null,
+    date: payload.date,
+  };
 
   const { data, error } = await supabase
     .from("achievements")
@@ -40,7 +40,7 @@ export async function createAchievementForUser(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to create achievement');
 
   return {
     id: String(data.id),
@@ -76,7 +76,7 @@ export async function updateAchievementForUser(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to update achievement');
 
   return {
     id: String(data.id),
@@ -100,7 +100,7 @@ export async function deleteAchievementForUser(
       user_id: userId,
     });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || 'Failed to delete achievement');
 
   return true;
 }

@@ -5,28 +5,32 @@ import Card from "@/components/Card";
 import EmptyState from "@/components/EmptyState";
 import { useDataStore } from "@/stores/useDataStore";
 import { useUIStore } from "@/stores/useUIStore";
-import { mockUser } from "@/lib/mockData";
+import { useUser } from "@clerk/nextjs";
+
 export default function AITasksPage() {
   const [loading, setLoading] = useState(false);
+  const { user } = useUser();
 
   // Store Hooks
   const tasks = useDataStore((s) => s.aiTasks || []);
   const generateTask = useDataStore((s) => s.generateAITask);
   const updateStatus = useDataStore((s) => s.updateAITaskStatus);
   const addToast = useUIStore((s) => s.addToast);
-
   const loadAITasks = useDataStore((s) => s.loadAITasks);
 
   useEffect(() => {
-    loadAITasks(mockUser.id);
-  }, []);
+    if (user?.id) {
+      loadAITasks(user.id);
+    }
+  }, [user?.id, loadAITasks]);
 
   // Generate Task Handler
   async function generate() {
+    if (!user?.id) return;
     setLoading(true);
     try {
-      const response = await generateTask();
-      console.log("response", response)
+      const response = await generateTask(user.id);
+      console.log("response", response);
       addToast({ title: "AI task generated successfully" });
     } catch (error) {
       addToast({ title: "Failed to generate task" });
@@ -55,8 +59,8 @@ export default function AITasksPage() {
         </div>
         <button
           onClick={generate}
-          disabled={loading}
-          className="px-4 py-2 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-medium rounded-lg shadow-sm transition-all flex items-center gap-2"
+          disabled={loading || !user}
+          className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 px-5 py-2.5 text-sm font-semibold transition hover:scale-105 shadow-sm disabled:opacity-50"
         >
           {loading ? "Generating..." : "Generate AI Task"}
         </button>
@@ -70,8 +74,8 @@ export default function AITasksPage() {
             action={
               <button
                 onClick={generate}
-                disabled={loading}
-                className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition"
+                disabled={loading || !user}
+                className="px-4 py-2 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition disabled:opacity-50"
               >
                 {loading ? "Generating..." : "Generate AI Task"}
               </button>

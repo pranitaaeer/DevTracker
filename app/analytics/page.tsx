@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { mockUser } from "@/lib/mockData";
 import ActivityForm from '@/components/ActivityForm';
 import Dialog from "@/components/Dialog";
+import { Plus } from 'lucide-react';
 
 const AnalyticsChart = dynamic(() => import('@/components/AnalyticsChart'), {
   ssr: false,
@@ -44,10 +45,12 @@ export default function AnalyticsPage() {
           onClick={() => {
             setOpen(true)
           }}
-          className="flex items-center gap-2 rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold transition-transform duration-200 hover:scale-105 active:scale-95"
+          className="flex items-center justify-center gap-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 px-5 py-2.5 text-sm font-semibold transition hover:scale-105 shadow-sm"
+
 
         >
-          + Add Activity
+          <Plus size={17} />
+           Add Activity
         </button>
       </div>
 

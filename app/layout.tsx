@@ -4,6 +4,7 @@ import AppShell from '@/components/AppShell';
 import { ClerkProvider } from '@/lib/components/clerk-provider';
 import GlobalToaster from '@/components/GlobalToaster';
 import HomeAuthErrorListener from '@/components/HomeAuthErrorListener';
+import UserSync from '@/components/UserSync';
 
 export const metadata = {
   title: 'DevTrack',
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Suspense fallback={null}>
               <HomeAuthErrorListener />
             </Suspense>
-
+             <UserSync/>
             {children}
             <GlobalToaster />
           </AppShell>
