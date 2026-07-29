@@ -1,4 +1,3 @@
-@import "@clerk/ui/themes/shadcn.css";
 
 @tailwind base;
 @tailwind components;
@@ -97,12 +96,3 @@
   }
 }
 
-/* Clerk Modal Backdrop Glass Blur */
-.cl-modalBackdrop,
-div[data-clerk-component="SignInModal"],
-div[class*="cl-modalBackdrop"] {
-  background-color: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  z-index: 99999 !important;
-}
