@@ -1,3 +1,5 @@
+
+
 import { getSupabase } from "./supabaseClient";
 import { JournalEntry } from "@/stores/useDataStore";
 
@@ -10,21 +12,22 @@ export async function fetchJournalForUser(userId: string) {
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to fetch journal entries");
 
   return (data || []).map((r: any) => ({
-    id: r.id,
+    id: String(r.id),
     date: r.date,
     content: r.content,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
-  }));
+  })) as JournalEntry[];
 }
 
 export async function createJournalForUser(
   userId: string,
   payload: Partial<JournalEntry>
 ) {
+  // FIXED: Explicit UUID pass kar rahe hain
   const row = {
     id: crypto.randomUUID(),
     user_id: userId,
@@ -38,15 +41,15 @@ export async function createJournalForUser(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to create journal entry");
 
   return {
-    id: data.id,
+    id: String(data.id),
     date: data.date,
     content: data.content,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
-  };
+  } as JournalEntry;
 }
 
 export async function updateJournalForUser(
@@ -71,15 +74,15 @@ export async function updateJournalForUser(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to update journal entry");
 
   return {
-    id: data.id,
+    id: String(data.id),
     date: data.date,
     content: data.content,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
-  };
+  } as JournalEntry;
 }
 
 export async function deleteJournalForUser(
@@ -94,7 +97,7 @@ export async function deleteJournalForUser(
       user_id: userId,
     });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to delete journal entry");
 
   return true;
 }

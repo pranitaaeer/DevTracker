@@ -12,6 +12,8 @@ import LoadingSkeleton from '@/components/LoadingSkeleton';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Plus, Sparkles, Flame, Activity, Code2, FolderGit2, Send } from 'lucide-react';
 import { fetchActivitiesForUser } from "@/lib/supabase/supabase-activities";
+import { fetchProjectsForUser } from "@/lib/supabase/supabase-projects";
+
 import Link from 'next/link';
 
 export type Message = {
@@ -39,27 +41,24 @@ const Heatmap = dynamic(
 export default function DashboardPage() {
   const { user, isLoaded, isSignedIn } = useUser();
   const activities = useDataStore(s => s.activities);
-  const projects = useDataStore(s => s.projects);
+  const setProjects = useDataStore((s: any) => s.setProjects);
+  const projects = useDataStore((state) => state.projects);
+  const loadProjects = useDataStore((state) => state.loadProjects);
   const journal = useDataStore(s => s.journal);
   const interviews = useDataStore(s => s.interviews);
   const achievements = useDataStore(s => s.achievements);
   const aiTasks = useDataStore(s => s.aiTasks);
 
-  // AI Drawer Control State
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [contributions, setContributions] = useState<any>({});
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  
-  // FIX 1: Initialized messages state properly
   const [messages, setMessages] = useState<Message[]>([]);
 
-  // Simple Normal Handle Send Function
   const handleSendMessage = (textToSend?: string) => {
     const query = (textToSend || inputMessage).trim();
     if (!query) return;
 
-    // User message local state mein add karein
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -70,7 +69,6 @@ export default function DashboardPage() {
     setInputMessage('');
     setIsTyping(true);
 
-    // Dummy AI Response (1 second ke delay ke baad)
     setTimeout(() => {
       const dummyReplies = [
         "That's awesome! Keep pushing your code updates.",
@@ -92,26 +90,44 @@ export default function DashboardPage() {
     }, 1000);
   };
 
+  // 3. UPDATED EFFECT: Database se Projects load karne ka function
   useEffect(() => {
-    async function load() {
+    async function loadData() {
       if (!user?.id) return;
 
-      const data = await fetchActivitiesForUser(user.id);
-      const map: any = {};
+      try {
+        // Fetch Activities
+        const activitiesData = await fetchActivitiesForUser(user.id);
+        const map: any = {};
 
-      data?.forEach((activity: any) => {
-        const date = activity.occurredAt.split("T")[0];
-        map[date] = (map[date] || 0) + 1;
-      });
+        activitiesData?.forEach((activity: any) => {
+          const date = activity.occurredAt.split("T")[0];
+          map[date] = (map[date] || 0) + 1;
+        });
+        setContributions(map);
 
-      setContributions(map);
+        // Fetch Projects from Supabase DB
+        if (typeof fetchProjectsForUser === 'function') {
+          const userProjects = await fetchProjectsForUser(user.id);
+          if (userProjects && setProjects) {
+            setProjects(userProjects);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading DB data:", err);
+      }
     }
 
     if (isLoaded && isSignedIn) {
-      load();
+      loadData();
     }
-  }, [user, isLoaded, isSignedIn]);
+  }, [user, isLoaded, isSignedIn, setProjects]);
 
+  useEffect(() => {
+    if (isLoaded && isSignedIn && user?.id) {
+      loadProjects(user.id);
+    }
+  }, [user?.id, isLoaded, isSignedIn, loadProjects]);
   const weekly = useMemo(() => {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const map: Record<string, number> = {};
@@ -170,7 +186,6 @@ export default function DashboardPage() {
                 </button>
               </Link>
 
-              {/* AI Assistant Trigger Button */}
               <button
                 onClick={() => setIsAiOpen(true)}
                 className="flex items-center gap-2 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-[#0d1117] text-black dark:text-white px-5 py-2.5 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
@@ -201,6 +216,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      {/* REMAINDER OF THE CODE IS UNCHANGED */}
       <div className="grid xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 space-y-6">
           <Card title="Today's Progress">
@@ -274,7 +290,7 @@ export default function DashboardPage() {
         </Card>
       </section>
 
-      {/* AI Assistant Modal/Drawer */}
+      {/* AI Assistant Modal */}
       {isAiOpen && (
         <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
           <div className="w-full max-w-md h-full bg-white dark:bg-[#111827] border-l border-zinc-200 dark:border-zinc-800 p-6 flex flex-col justify-between shadow-2xl transition-all">
@@ -292,7 +308,6 @@ export default function DashboardPage() {
                 </button>
               </div>
 
-              {/* Chat Container */}
               <div className="flex-1 overflow-y-auto my-4 space-y-4 text-sm text-zinc-600 dark:text-zinc-400 pr-1">
                 <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-900 dark:text-purple-300">
                   👋 Hi! I analyzed your recent activities. You spent <strong>{totalHours} hrs</strong> coding recently. Ready to set today's goals?
@@ -300,13 +315,13 @@ export default function DashboardPage() {
 
                 <div className="space-y-2">
                   <p className="text-xs font-semibold uppercase text-zinc-400">Quick Prompts</p>
-                  <button 
+                  <button
                     onClick={() => handleSendMessage("Summarize my weekly progress")}
                     className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
                   >
                     ✨ Summarize my weekly progress
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleSendMessage("Suggest tasks to keep my streak going")}
                     className="w-full text-left p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
                   >
@@ -314,15 +329,13 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
-                {/* FIX 2: Render Sent Messages */}
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`p-3 rounded-xl text-sm ${
-                      msg.role === 'user'
+                    className={`p-3 rounded-xl text-sm ${msg.role === 'user'
                         ? 'ml-auto bg-purple-600 text-white max-w-[85%]'
                         : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700 max-w-[85%]'
-                    }`}
+                      }`}
                   >
                     {msg.message}
                   </div>
@@ -335,7 +348,6 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* Input Container */}
               <div className="relative flex items-center shrink-0">
                 <input
                   type="text"

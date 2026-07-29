@@ -1,33 +1,36 @@
-import { getSupabase } from './supabaseClient';
-import { Interview } from '@/stores/useDataStore';
+
+
+import { getSupabase } from "./supabaseClient";
+import { Interview } from "@/stores/useDataStore";
 
 const supabase = getSupabase();
 
 export async function fetchInterviewsForUser(userId: string) {
   const { data, error } = await supabase
-    .from('interviews')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .from("interviews")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to fetch interviews");
 
-  return (data || []).map((r:any)=>({
-    id: r.id,
+  return (data || []).map((r: any) => ({
+    id: String(r.id),
     company: r.company,
     role: r.role,
     date: r.date,
     status: r.status,
-    notes: r.notes,
+    notes: r.notes || undefined,
     createdAt: r.created_at,
-    updatedAt: r.updated_at
-  }));
+    updatedAt: r.updated_at,
+  })) as Interview[];
 }
 
 export async function createInterviewForUser(
-  userId:string,
+  userId: string,
   payload: Partial<Interview>
-){
+) {
+  // FIXED: Explicit UUID pass kar rahe hain
   const row = {
     id: crypto.randomUUID(),
     user_id: userId,
@@ -35,28 +38,27 @@ export async function createInterviewForUser(
     role: payload.role,
     date: payload.date,
     status: payload.status,
-    notes: payload.notes
+    notes: payload.notes || null,
   };
 
-
   const { data, error } = await supabase
-    .from('interviews')
+    .from("interviews")
     .insert([row])
     .select()
     .single();
 
-  if(error) throw error;
+  if (error) throw new Error(error.message || "Failed to create interview");
 
   return {
-    id: data.id,
+    id: String(data.id),
     company: data.company,
     role: data.role,
     date: data.date,
     status: data.status,
-    notes: data.notes,
+    notes: data.notes || undefined,
     createdAt: data.created_at,
-    updatedAt: data.updated_at
-  };
+    updatedAt: data.updated_at,
+  } as Interview;
 }
 
 export async function updateInterviewForUser(
@@ -84,18 +86,18 @@ export async function updateInterviewForUser(
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to update interview");
 
   return {
-    id: data.id,
+    id: String(data.id),
     company: data.company,
     role: data.role,
     date: data.date,
     status: data.status,
-    notes: data.notes,
+    notes: data.notes || undefined,
     createdAt: data.created_at,
     updatedAt: data.updated_at,
-  };
+  } as Interview;
 }
 
 export async function deleteInterviewForUser(
@@ -110,7 +112,7 @@ export async function deleteInterviewForUser(
       user_id: userId,
     });
 
-  if (error) throw error;
+  if (error) throw new Error(error.message || "Failed to delete interview");
 
   return true;
 }

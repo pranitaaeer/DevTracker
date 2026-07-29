@@ -4,6 +4,7 @@ import { useState } from "react";
 import Dialog from "@/components/Dialog";
 import { useDataStore } from "@/stores/useDataStore";
 import { useUIStore } from "@/stores/useUIStore";
+import { useUser } from "@clerk/nextjs"; // 1. Clerk hook import karein
 
 type Props = {
   open: boolean;
@@ -13,6 +14,9 @@ type Props = {
 export default function ActivityForm({ open, onClose }: Props) {
   const addActivity = useDataStore((s) => s.addActivity);
   const addToast = useUIStore((s) => s.addToast);
+  
+  // 2. Clerk se actual logged-in user details lein
+  const { user } = useUser();
 
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
@@ -23,10 +27,10 @@ export default function ActivityForm({ open, onClose }: Props) {
   );
 
   async function handleSubmit() {
-    if (!title.trim()) return;
+    if (!title.trim() || !user?.id) return;
 
-    await addActivity({
-      userId: "",
+    // 3. Directly Clerk ki `user.id` pass karein
+    await addActivity(user.id, {
       projectId: undefined,
       title,
       notes,

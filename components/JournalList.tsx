@@ -29,22 +29,22 @@ export default function JournalList({
               <div className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                 {e.date}
               </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => onEdit?.(e)}
-                  className="flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
-                >
-                  <Pencil size={13} />
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete?.(e.id)}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-500/10 px-3 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition"
-                >
-                  <Trash2 size={13} />
-                  Delete
-                </button>
-              </div>
+              <div className="flex justify-end gap-2 mt-3">
+              <button
+                onClick={() => onEdit?.(e)}
+                className="h-9 w-9 rounded-xl border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white transition"
+
+              >
+                <Pencil size={13} />
+              </button>
+              <button
+                onClick={() => onDelete?.(e.id)}
+                className="h-9 w-9 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition flex items-center justify-center"
+
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-zinc-800 dark:text-zinc-300 whitespace-pre-wrap">
               {e.content}

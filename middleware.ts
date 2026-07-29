@@ -1,29 +1,33 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+
+import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// Protected Routes
-const isProtectedRoute = createRouteMatcher([
-  "/dashboard(.*)",
-  "/projects(.*)",
-  "/kanban(.*)",
-  "/interviews(.*)",
-  "/achievements(.*)",
-  "/journal(.*)",
-  "/analytics(.*)",
-  "/aitasks(.*)",
-  "/resume(.*)",
-  "/heatmap(.*)",
-  "/settings(.*)",
-
-  // Only AI API should be protected
-  "/api/ai(.*)",
-]);
+// Protected route paths define karein
+const protectedPaths = [
+  "/dashboard",
+  "/projects",
+  "/kanban",
+  "/interviews",
+  "/achievements",
+  "/journal",
+  "/analytics",
+  "/aitasks",
+  "/resume",
+  "/heatmap",
+  "/settings",
+  "/api/ai",
+];
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
+  const { pathname } = req.nextUrl;
+
+  // Check karein ki current path protected list mein hai ya nahi
+  const isProtected = protectedPaths.some((path) => pathname.startsWith(path));
 
   // Agar route protected hai aur user logged-in NAHI hai
-  if (isProtectedRoute(req) && !userId) {
+  if (isProtected && !userId) {
     const homeUrl = new URL("/", req.url);
     homeUrl.searchParams.set("auth_error", "please_login");
 
@@ -50,7 +54,7 @@ export const config = {
     // Ignore Next.js internals & static assets
     "/((?!_next|.*\\..*).*)",
 
-    // Run middleware for AI API
+    // Run middleware for API routes
     "/api/:path*",
   ],
 };
