@@ -43,8 +43,11 @@ NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 ---
 
 ## Getting Started Locally
+
 npm install
+
 npm run build
+
 
 ---
 
