@@ -46,7 +46,7 @@ NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
 
 npm install
 
-npm run build
+npm run dev
 
 
 ---
