@@ -1,61 +1,69 @@
-DevTrack — Developer Operating System
+# DevTrack — Developer Operating System
 
-This repository is a scaffold for DevTrack: a production-oriented Next.js 15 app to track developer activity, projects, learning, interviews and achievements.
+DevTrack is a production-oriented **Next.js 15** application designed to track developer activity, projects, AI-generated tasks, learning, interviews, and achievements.
 
-Key features in this scaffold:
-- Next.js App Router (app/)
-- TypeScript with strict mode
-- Tailwind CSS
-- Prisma schema for PostgreSQL (Supabase-friendly)
-- Secure JWT cookie session adapter (lib/auth.ts) — can be swapped with Better Auth provider
-- Server route for creating activities (app/api/actions/activity/create/route.ts)
-- Singleton Prisma client (lib/prisma.ts)
-- Clean, scalable folder structure separating UI, business logic and DB logic
-- Reusable components, Zustand store for client state
+---
 
-Getting started
-1. Copy .env.example to .env and set DATABASE_URL and JWT_SECRET.
-2. npm install
-3. npx prisma generate
-4. npx prisma migrate dev --name init
-5. npm run dev
+## 🚀 Tech Stack & Key Features
 
-Notes on authentication
-- This scaffold integrates Better Auth using a Prisma adapter against a Supabase-hosted PostgreSQL database (Supabase used only as the DB). The adapter persists users, sessions and linked OAuth accounts in Prisma models.
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript (Strict Mode)
+- **Styling**: Tailwind CSS v4
+- **Database & Backend**: Supabase 
+- **Authentication**: Clerk (`@clerk/nextjs`)
+- **AI Integration**: OpenRouter API (for AI task generation)
+- **State Management**: Zustand
+- **UI & Components**: Custom Components
 
-Environment variables
-- DATABASE_URL — PostgreSQL connection string (Supabase)
-- BETTER_AUTH_COOKIE_NAME — optional cookie name for sessions (default: better_auth_session)
-- BETTER_AUTH_REFRESH_COOKIE — optional refresh cookie name (default: better_auth_refresh)
-- BETTER_AUTH_GOOGLE_CLIENT_ID — Google OAuth client id
-- BETTER_AUTH_GOOGLE_CLIENT_SECRET — Google OAuth client secret
-- BETTER_AUTH_GOOGLE_REDIRECT_URI — OAuth redirect URI (e.g., https://your-app.com/api/auth/google/callback)
-- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS — SMTP settings for outgoing emails
-- EMAIL_FROM — email sender address
-- NEXT_PUBLIC_APP_URL — public app URL used in emails
+---
 
-Next steps
-- Implement client-side sign-in/register components that call server actions (app/actions/auth/*)
-- Add charts (Recharts) for analytics in client components.
-- Ensure to run prisma migrate after updating the schema: npx prisma migrate dev --name auth
+## 🛠️ Environment Variables Setup
 
-Security & Hardening implemented
-- OAuth state validation: OAuth state tokens are generated and persisted in the DB (oAuthState) and validated on callback.
-- CSRF protection: server pages issue a CSRF token via a cookie and server actions validate it (double-submit cookie).
-- Rate limiting: lightweight in-memory rate limiter for login/register actions; consider Redis-backed rate limiting in production.
-- Email verification and password reset flows: endpoints to request and confirm email verification and password resets (tokens stored in VerificationToken table). Email sending uses nodemailer and requires SMTP config.
-- Session management & refresh handling: sessions are opaque tokens stored in Session table along with refresh tokens and expiry; refresh endpoint rotates tokens.
-- Security headers: middleware sets HSTS, CSP, X-Frame-Options, etc.
-- Audit logging: AuditLog table and logAudit helper to record auth events.
+Project ke root directory me **`.env`** ya **`.env.local`** file banayein aur ye exact variables fill karein:
 
-Official Better Auth SDK integration
-- The project uses the official Better Auth SDK and its official Prisma adapter. After installing the SDK packages locally the application will rely on the SDK as the single source of truth for authentication.
-- To enable the SDK, install the packages locally:
-  - npm install better-auth @better-auth/prisma-adapter
-- The SDK is initialized in lib/auth.ts using the Prisma adapter and the existing Prisma client. The codebase now delegates all auth flows (email/password sign-up & sign-in, sessions, refresh, email verification, password reset, and OAuth) to the official SDK APIs.
-- Run the following locally after installing packages:
-  - npx prisma generate
-  - npx prisma migrate dev --name better-auth
-  - npm run dev
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
 
-This scaffold focuses on architecture, security, and a clear separation of concerns.
+# AI Task Integration
+OPENROUTER_API_KEY=sk-xxxxxxxxxxxxxxxx
+
+# Clerk Authentication Keys
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-publishable-key
+CLERK_SECRET_KEY=your-secret-key
+
+# Clerk Route Redirects
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/dashboard
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/dashboard
+
+```
+---
+
+## Getting Started Locally
+npm install
+npm run build
+
+---
+
+## 🔐 Authentication (Clerk)
+
+Dedicated sign-in & sign-up pages (/sign-in, /sign-up).
+
+User session verification across Server Components, Client Components, and Next.js API routes.
+
+after Successful login automatic /dashboard redirect logic.
+
+---
+
+## 🗄️ Database Integration (Supabase)
+
+The native Supabase JS Client (@supabase/supabase-js) is used for backend storage and database queries.
+
+All Supabase interaction helper queries and database instances are centralized inside the lib/supabase/ folder
+
+## 🤖 AI Features (OpenRouter)
+
+DevTrack helps auto-generate developer workflows and tasks using the OpenRouter API (/app/api/ai/generate-task/route.ts)
