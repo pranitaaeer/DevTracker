@@ -1,3 +1,4 @@
+import React from 'react'
 import { ClerkProvider as ClerkNextJSProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 
